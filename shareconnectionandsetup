@@ -1,0 +1,54 @@
+#!/bin/bash
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+###
+echo -e "\n"
+echo -e "${RED}Start connection sharing${NC}"
+###
+
+# flush iptables rules
+iptables -F
+
+# set iptables rules for sharing
+iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+iptables -A FORWARD -p udp -s 192.168.2.3 -d 8.8.8.8 --dport 53
+iptables -A FORWARD -p tcp -s 192.168.2.3 -d 8.8.8.8 --dport 53
+
+# enable IPv4 forwarding
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+###
+echo -e "\n"
+echo -e "${RED}Setting default route and starting services on proxy${NC}"
+###
+ansible proxy -m shell -a 'ip route add default via 192.168.2.2'
+sleep 2
+ansible proxy -m shell -a 'systemctl start squid'
+sleep 2
+
+###
+echo -e "\n"
+echo -e "${RED}Setting default route on vms (VM1)${NC}"
+###
+ansible vms -m shell -a 'ip route add default via 192.168.3.2'
+sleep 2
+###### CHANGE ME change vms if adding VM2 to /etc/ansible/hosts
+
+###
+echo -e "\n"
+echo -e "${RED}Starting the update on proxy/VM1${NC}"
+ansible-playbook /root/playbooks/update.yaml --verbose
+###
+
+echo -e "\n"
+echo -e "${GREEN}Finished all tasks${NC}"
+
+echo -e "\n\n"
+echo -e "${GREEN}Useful commands${NC}"
+echo "ansible-playbook /root/playbooks/update.yaml --verbose"
+echo "yum update -y"
+echo "ansible allvms -a \"shutdown -h now\""
+echo "ansible allvms -m shell -a \'echo $TERM\'"
