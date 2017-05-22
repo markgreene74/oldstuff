@@ -1,0 +1,47 @@
+#!/bin/bash
+# see
+# https://bash.cyberciti.biz/guide/The_case_statement
+# check args
+# -h|-H|--help print help/usage
+
+if [ -z $1 ] # $1 is empty set server to default
+then
+    server=default #CHANGEME
+elif [ "$1" == "-h" || "$1" == "-H" || "$1" == "--help" ] #print help/usage and exit
+then
+    echo "Print usage and exit"
+    exit
+elif [ -n $1 ] # not empty, not -h, then set server to $1
+then
+    server="$1"
+fi
+
+# server="$1"
+# or
+# set server to default
+
+# output the result of the command to the variable $output
+output=$(ssh $server 'echo \"This is the command to run on server\"')
+
+echo $output
+
+case $output in
+    "server01") echo "server01 is up";;
+    "server02") echo "server02 is up";;
+    "server03") echo "server03 is up";;
+    "server04") echo "server04 is up";;
+    "server05") echo "server05 is up";;
+    *) echo "None of the above";;
+esac
+
+# split the output into lines
+# xargs -d' ' -n1
+# tr ' ' '\n'
+
+# another example
+# strings="string1;string2"
+# string=$(echo $strings | tr ";" "\n")
+# for line in string
+# do
+#     echo "This is [$line]"
+# done
