@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# ssh-keyscan -H hostname >> ~/.ssh/known_hosts
+# ssh -oSrictHostKeyChecking=no
+# in .ssh/config
+# StrictHostKeyChecking no
+# UserKnownHostsFile=/dev/null
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+server=server_name # this should come as a command line arg
+service=service_name # this should come as a command line arg
+
+restart (){
+# function to restart the service
+ssh -oSrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${server} 'service ${service} restart' 
+}
+
+# echo -e "\n"
+echo -e "${GREEN}Connecting to ${RED}${server}${GREEN} to restart ${RED}${service}${NC}"
+
+restart
+
+echo -e "${GREEN}Done${NC}"
