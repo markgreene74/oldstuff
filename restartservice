@@ -43,18 +43,18 @@ fi
 # case ${VARIABLE} in
 #     a|b|c|d|e|f|g|h|j|k|m|n|p)
 #         OTHERVARIABLE1="VALUE1"
-#	        OTHERVARIABLE2="VALUE2"
+#	      OTHERVARIABLE2="VALUE2"
 #         OTHERVARIABLE3=""
-#	        ;;
+#	      ;;
 #     that)
 #         OTHERVARIABLE1="VALUE3"
 #         OTHERVARIABLE2="VALUE4"
-#	        OTHERVARIABLE3="VALUE5"
+#	      OTHERVARIABLE3="VALUE5"
 #         ;;
 #      *)
 #         OTHERVARIABLE1="VALUE99"
 #         WGET_OPTIONS=""
-#	        ;;
+#	      ;;
 #   esac
 
 ### define the restart function
