@@ -1,22 +1,73 @@
 #!/bin/bash
 
 # ssh-keyscan -H hostname >> ~/.ssh/known_hosts
-# ssh -oSrictHostKeyChecking=no
+# ssh -oSrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+#
 # in .ssh/config
 # StrictHostKeyChecking no
 # UserKnownHostsFile=/dev/null
+
+### Global variables
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-server=server_name # this should come as a command line arg
-service=service_name # this should come as a command line arg
+# server=server_name     # from args
+# service=service_name   # from args
+ssh_options="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" # ssh options
+
+### arg check
+
+# check args, if help is requested print usage and exit
+if [[ "$1" == "-h" || "$1" == "-H" || "$1" == "--help" ]] #print help/usage and exit
+then
+    echo "$0 will restart a service on a remote server"
+    echo "Usage: $0 server service"
+    exit
+fi
+
+# perform basic check on args, we need both $1 and $2
+
+if [ ! $# == 2 ]; then
+  echo "Missing arguments. Usage: $0 server service"
+  exit
+else
+  server=$1
+  service=$2
+fi
+
+# next: do a simple sanity check on server, it must be one of these kinds
+# abc, def, ghi, jkl
+# similar to
+# case ${VARIABLE} in
+#     a|b|c|d|e|f|g|h|j|k|m|n|p)
+#         OTHERVARIABLE1="VALUE1"
+#	        OTHERVARIABLE2="VALUE2"
+#         OTHERVARIABLE3=""
+#	        ;;
+#     that)
+#         OTHERVARIABLE1="VALUE3"
+#         OTHERVARIABLE2="VALUE4"
+#	        OTHERVARIABLE3="VALUE5"
+#         ;;
+#      *)
+#         OTHERVARIABLE1="VALUE99"
+#         WGET_OPTIONS=""
+#	        ;;
+#   esac
+
+### define the restart function
 
 restart (){
 # function to restart the service
-ssh -oSrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${server} 'service ${service} restart' 
+# ssh ${ssh_options} ${server} "sudo systemctl restart ${service}"
+# ssh ${ssh_options} ${server} "sudo service ${service} restart"
+ssh ${ssh_options} ${server} "sudo /etc/init.d/${service} restart"
+# ssh ${ssh_options} ${server} "echo ${service} test" #DEBUG
 }
+
+### main ()
 
 # echo -e "\n"
 echo -e "${GREEN}Connecting to ${RED}${server}${GREEN} to restart ${RED}${service}${NC}"
