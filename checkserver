@@ -16,18 +16,36 @@ then
     server="$1"
 fi
 
+# another way to check args
+# check $1
+#if [ -z "$*" ]; # no arg set server to default
+#then
+#    server=default #CHANGEME
+#elif [ $1 == "-h" ] || [ "$1" == "--help" ]; # print help and exit
+#then
+#    echo "Usage: script [arg], where arg is a server"
+#    echo "Example: server01"
+#    exit
+#else # set server to $1
+#    server=$1
+#fi
+
 # output the result of the command to the variable $output
 #output=$(ssh $server 'cat checkserver_test.txt') #DEBUG
-output=$(ssh $server 'echo "This is the command to execute on $server"') #CHANGEME
+output=$(ssh ${server} 'echo "This is the command to execute on ${server}"') #CHANGEME
 
-for i in {1..7} # test for each server0{1..7}
+for i in {1..9} # test for each server0{1..9}
 do
 #    echo "testing for server 0${i}" #DEBUG
     if [[ ${output} == *"server0${i}"* ]] # contain server $i
     then
-        echo "server0${i} is present"
+#        echo "server0${i} is present" #DEBUG
+        echo -n "."
     else
         echo "server0${i} is missing"
-        # do something
+        # do something #CHANGEME
     fi
 done
+
+echo
+echo "Done"
