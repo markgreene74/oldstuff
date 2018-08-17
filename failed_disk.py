@@ -28,19 +28,27 @@ Giuseppe Cunsolo
 (555) 555 555"""
 
 datacenter_info = {
-    "A": ("Cluster A Location", "Cluster A Code",
-          "Cluster A URL",
-          "Cluster A Address",
-          "Cluser A Contact details"),
-    "B": ("Cluster B Location", "Cluster B Code",
-          "Cluster B URL",
-          "Cluster B Address",
-          "Cluser B Contact details"),
-    "C": ("Cluster C Location", "Cluster C Code",
-          "Cluster C URL",
-          "Cluster C Address",
-          "Cluser C Contact details"),
-
+    "A": (
+        "Cluster A Location",
+        "Cluster A Code",
+        "Cluster A URL",
+        "Cluster A Address",
+        "Cluser A Contact details",
+    ),
+    "B": (
+        "Cluster B Location",
+        "Cluster B Code",
+        "Cluster B URL",
+        "Cluster B Address",
+        "Cluser B Contact details",
+    ),
+    "C": (
+        "Cluster C Location",
+        "Cluster C Code",
+        "Cluster C URL",
+        "Cluster C Address",
+        "Cluser C Contact details",
+    ),
 }
 
 
@@ -49,17 +57,18 @@ class bcolors:
     Simple way to print in colours without importing external modules
     print(bcolors.BOLD + "BOLD" + bcolors.ENDC)
     """
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
 
 
-class server_object():
+class server_object:
     """
     Contains all the server information (disks, location)
     parsed and easy to consume
@@ -82,8 +91,14 @@ class server_object():
         self.hwdisk_data = {}
         # create a list of the server details and init a empty dict
         # which will contain all the data
-        self.hinv_list = ["Location", "Rack", "RU", "Asset tag",
-                          "Server model", "Warranty epoch"]
+        self.hinv_list = [
+            "Location",
+            "Rack",
+            "RU",
+            "Asset tag",
+            "Server model",
+            "Warranty epoch",
+        ]
         self.server_details = {}
         # init lists
         # list of all disks
@@ -111,14 +126,20 @@ class server_object():
         Parse xymon hwdisk test and extract the result of the test
         """
         try:
-            self.hwdisk_data['RAID type'] = re.findall(r'.*Virtual Disk.*(RAID-\d+).*', self.hwdisk, re.MULTILINE)[0]
-            self.hwdisk_data['RAID status'] = re.findall(r'.*Virtual Disk.*is\s(\w+)\:?', self.hwdisk, re.MULTILINE)[0]
-            self.hwdisk_data['Test status'] = re.findall(r'.*\|hw-disk\|(\w+)\|', self.hwdisk, re.MULTILINE)[0]
+            self.hwdisk_data["RAID type"] = re.findall(
+                r".*Virtual Disk.*(RAID-\d+).*", self.hwdisk, re.MULTILINE
+            )[0]
+            self.hwdisk_data["RAID status"] = re.findall(
+                r".*Virtual Disk.*is\s(\w+)\:?", self.hwdisk, re.MULTILINE
+            )[0]
+            self.hwdisk_data["Test status"] = re.findall(
+                r".*\|hw-disk\|(\w+)\|", self.hwdisk, re.MULTILINE
+            )[0]
         except IndexError:
             print("Something is wrong with the data from Xymon test!")
-            self.hwdisk_data['RAID type'] = ""
-            self.hwdisk_data['RAID status'] = ""
-            self.hwdisk_data['Test status'] = ""
+            self.hwdisk_data["RAID type"] = ""
+            self.hwdisk_data["RAID status"] = ""
+            self.hwdisk_data["Test status"] = ""
         # TODO in the next version of the script these
         # should be tested singularly
         # TODO
@@ -134,24 +155,36 @@ class server_object():
         """
         # Fix a bug where sometimes Xymon will put ",b '
         # in the middle of Rack location
-        self.hinv = self.hinv.replace('", b\'', '')
+        self.hinv = self.hinv.replace("\", b'", "")
         try:
-            self.server_details['Location'] = re.findall(r'.*Rack location:\s+(.*),\s\w', self.hinv, re.MULTILINE)[0].split(", ")[0]
-            self.server_details['Rack'] = re.findall(r'.*Rack location:\s+(.*),\s\w', self.hinv, re.MULTILINE)[0].split(", ")[1]
+            self.server_details["Location"] = re.findall(
+                r".*Rack location:\s+(.*),\s\w", self.hinv, re.MULTILINE
+            )[0].split(", ")[0]
+            self.server_details["Rack"] = re.findall(
+                r".*Rack location:\s+(.*),\s\w", self.hinv, re.MULTILINE
+            )[0].split(", ")[1]
             # here we need to extract 1 or 2 RU, therefore the |
             # test for 2 RUs first, if that doesn't match extract 1 RU
-            self.server_details['RU'] = re.findall(r'.*position:\s(\d*,\d*|\d*)', self.hinv, re.MULTILINE)[0]
-            self.server_details['Asset tag'] = re.findall(r'.*Serial\s:\s(\w*)\s+\n', self.hinv, re.MULTILINE)[0]
-            self.server_details['Server model'] = re.findall(r'.*HW type\s:\s(.*)\s+\n', self.hinv, re.MULTILINE)[0].strip()
+            self.server_details["RU"] = re.findall(
+                r".*position:\s(\d*,\d*|\d*)", self.hinv, re.MULTILINE
+            )[0]
+            self.server_details["Asset tag"] = re.findall(
+                r".*Serial\s:\s(\w*)\s+\n", self.hinv, re.MULTILINE
+            )[0]
+            self.server_details["Server model"] = re.findall(
+                r".*HW type\s:\s(.*)\s+\n", self.hinv, re.MULTILINE
+            )[0].strip()
         except IndexError:
             print("Something important is missing from the hinv!")
         # TODO in the next version of the script these values
         # should be tested singularly
         try:
-            self.server_details['Warranty epoch'] = re.findall(r'.*HW\swarranty\s\(epoch\)\s\:\s(\d+).*', self.hinv, re.MULTILINE)[0]
+            self.server_details["Warranty epoch"] = re.findall(
+                r".*HW\swarranty\s\(epoch\)\s\:\s(\d+).*", self.hinv, re.MULTILINE
+            )[0]
         except IndexError:
             # Warranty epoch is empty in the hinv
-            self.server_details['Warranty epoch'] = ""
+            self.server_details["Warranty epoch"] = ""
 
     def parse_omreport_disks(self):
         """
@@ -164,33 +197,25 @@ class server_object():
         blocks = []
         disk_string = ""
         for i in self.omreport:
-            disk_string += str(i, 'utf-8')
+            disk_string += str(i, "utf-8")
         blocks = disk_string.split("\n\n")
         # for each block gather the information about the disks and
         # organize them in a tuple
         # build a list from these tuples
         for block in blocks:
             try:
-                found0 = re.findall(r'^ID\s+\:\s(.*)\n', block,
-                                    re.MULTILINE)
-                found1 = re.findall(r'^Status\s+\:\s(.*)\n', block,
-                                    re.MULTILINE)
-                found2 = re.findall(r'^State\s+\:\s(\w+)\n', block,
-                                    re.MULTILINE)
-                found3 = re.findall(r'^Bus\sProtocol.*\:\s(\w+)\n', block,
-                                    re.MULTILINE)
-                found4 = re.findall(r'^Media.*\:\s(\w+)\n', block,
-                                    re.MULTILINE)
-                found5 = re.findall(r'^Failure\sPredicted.*\:\s(\w+)\n', block,
-                                    re.MULTILINE)
-                found6 = re.findall(r'^Progress.*\:\s(.*)\n', block,
-                                    re.MULTILINE)
-                found7 = re.findall(r'^Capacity.*\:\s(.*)\s\(.*\n', block,
-                                    re.MULTILINE)
-                found8 = re.findall(r'^Product\sID.*\:\s(\w+)\n', block,
-                                    re.MULTILINE)
-                found9 = re.findall(r'^Serial.*\:\s(\w+)\n', block,
-                                    re.MULTILINE)
+                found0 = re.findall(r"^ID\s+\:\s(.*)\n", block, re.MULTILINE)
+                found1 = re.findall(r"^Status\s+\:\s(.*)\n", block, re.MULTILINE)
+                found2 = re.findall(r"^State\s+\:\s(\w+)\n", block, re.MULTILINE)
+                found3 = re.findall(r"^Bus\sProtocol.*\:\s(\w+)\n", block, re.MULTILINE)
+                found4 = re.findall(r"^Media.*\:\s(\w+)\n", block, re.MULTILINE)
+                found5 = re.findall(
+                    r"^Failure\sPredicted.*\:\s(\w+)\n", block, re.MULTILINE
+                )
+                found6 = re.findall(r"^Progress.*\:\s(.*)\n", block, re.MULTILINE)
+                found7 = re.findall(r"^Capacity.*\:\s(.*)\s\(.*\n", block, re.MULTILINE)
+                found8 = re.findall(r"^Product\sID.*\:\s(\w+)\n", block, re.MULTILINE)
+                found9 = re.findall(r"^Serial.*\:\s(\w+)\n", block, re.MULTILINE)
                 #
                 # found is a tuple of ten elements
                 #  0 ID                              : 0:0:0
@@ -207,13 +232,23 @@ class server_object():
                 # ('0:0:0', 'Ok', 'Online', 'SAS', 'HDD', 'No',
                 #  'Not Applicable', '418.63 GB', 'ST3450857SS', '3SK15JJK')
                 #
-                found = (found0, found1, found2, found3, found4, found5,
-                         found6, hr_disk_size(found7), found8, found9)
+                found = (
+                    found0,
+                    found1,
+                    found2,
+                    found3,
+                    found4,
+                    found5,
+                    found6,
+                    hr_disk_size(found7),
+                    found8,
+                    found9,
+                )
                 # found7 is the only element of the tuple that is a string
                 # and not a list; this is important when printing it
             except AttributeError:
-                found = ''
-            if found != '' and all(found):  # if found is not empty
+                found = ""
+            if found != "" and all(found):  # if found is not empty
                 result.append(found)
         # now result is populated with the full list of disks
         # we will need this outside the function
@@ -255,9 +290,12 @@ class server_object():
         """
         # stop if the server is offline
         if stop_with_error == "SSH":
-            print(bcolors.FAIL + "The server may be offline!" +
-                  bcolors.ENDC +
-                  " Cannot get rebuilding information.\n")
+            print(
+                bcolors.FAIL
+                + "The server may be offline!"
+                + bcolors.ENDC
+                + " Cannot get rebuilding information.\n"
+            )
             sys.exit(1)
         # we don't need to check if there are disks rebuilding
         # start the curses wrapper anyway;
@@ -302,21 +340,23 @@ class server_object():
         while dont_exit_the_loop:
             sc.clear()
             counter += 1
-            sc.addstr("Server: %s\t\tTime: %s\t\t(%s)\n" % (server,
-                                                            str(datetime.now().strftime("%H:%M:%S")),
-                                                            counter))
+            sc.addstr(
+                "Server: %s\t\tTime: %s\t\t(%s)\n"
+                % (server, str(datetime.now().strftime("%H:%M:%S")), counter)
+            )
             sc.addstr("Rebuilding: %s\n" % len(self.list_rebuilding))
             for n in self.list_rebuilding:
-            # for n in self.list_all:  # DEBUG print everything, replace self.list_rebuilding with self.list_all
-                sc.addstr("\n" + "ID:".ljust(20) +
-                          n[0][0] + "\n")
+                # for n in self.list_all:  # DEBUG print everything, replace self.list_rebuilding with self.list_all
+                sc.addstr("\n" + "ID:".ljust(20) + n[0][0] + "\n")
                 sc.addstr("Status:".ljust(20) + n[1][0] + "\n")
                 sc.addstr("State:".ljust(20) + n[2][0] + "\n")
                 sc.addstr("Serial No.:".ljust(20) + n[9][0] + "\n")
                 sc.addstr("Capacity:".ljust(20) + n[7] + "\n")
                 sc.addstr("Progress:".ljust(20) + n[6][0] + "\n")
             sc.addstr("\nThe screen will refresh every %ss.\n" % str(refresh_rate))
-            sc.addstr("Press 'q' to exit (wait until the application stops, may take a few seconds)")
+            sc.addstr(
+                "Press 'q' to exit (wait until the application stops, may take a few seconds)"
+            )
             # sc.addstr("%s %s %s %s" % (0, 0, curses.LINES - 1, curses.COLS - 1))  # DEBUG
             sc.refresh()
             #
@@ -358,8 +398,11 @@ class server_object():
         open_section("Server location")
         for i in self.hinv_list:
             print(i + ":".ljust(20 - len(i)), self.server_details[i])
-        if self.server_details['Warranty epoch']:
-            print("Warranty:".ljust(20), datetime.fromtimestamp(int(self.server_details['Warranty epoch'])))
+        if self.server_details["Warranty epoch"]:
+            print(
+                "Warranty:".ljust(20),
+                datetime.fromtimestamp(int(self.server_details["Warranty epoch"])),
+            )
         else:
             print("\nThe Warranty epoch is missing\n")
         print("\nURL:\n%s" % datacenter_info[letter][2])
@@ -371,9 +414,12 @@ class server_object():
         as requested by the user with the argument -s/--serial
         """
         if stop_with_error == "SSH":
-            print(bcolors.FAIL + "The server may be offline!" +
-                  bcolors.ENDC +
-                  " The following information may not be accurate.\n")
+            print(
+                bcolors.FAIL
+                + "The server may be offline!"
+                + bcolors.ENDC
+                + " The following information may not be accurate.\n"
+            )
         open_section("Disk information and serial numbers")
         for i in self.hwdisk_list:
             print(i + ":".ljust(20 - len(i)), self.hwdisk_data[i])
@@ -396,9 +442,12 @@ class server_object():
         the argument -c/--compact
         """
         if stop_with_error == "SSH":
-            print(bcolors.FAIL + "The server may be offline!" +
-                  bcolors.ENDC +
-                  " The following information may not be accurate.\n")
+            print(
+                bcolors.FAIL
+                + "The server may be offline!"
+                + bcolors.ENDC
+                + " The following information may not be accurate.\n"
+            )
         open_section("Compact report")
         for i in ["Location", "Rack", "RU", "Asset tag", "Server model"]:
             print(i + ":".ljust(20 - len(i)), self.server_details[i])
@@ -417,9 +466,12 @@ class server_object():
         based on the arg flags (-t, etc)
         """
         if stop_with_error == "SSH":
-            print(bcolors.FAIL + "The server may be offline!" +
-                  bcolors.ENDC +
-                  " The following information may not be accurate.\n")
+            print(
+                bcolors.FAIL
+                + "The server may be offline!"
+                + bcolors.ENDC
+                + " The following information may not be accurate.\n"
+            )
         # Print the information from Xymon test
         open_section("Xymon test")
         for i in self.hwdisk_list:
@@ -456,10 +508,13 @@ class server_object():
             print("{code}")
             # Print the server model, asset tag, warranty for the JIRA ticket
             print("-----\n{code:java}")
-            print("Server model:".ljust(20), self.server_details['Server model'])
-            print("Asset tag:".ljust(20), self.server_details['Asset tag'])
-            if self.server_details['Warranty epoch']:
-                print("Warranty:".ljust(20), datetime.fromtimestamp(int(self.server_details['Warranty epoch'])))
+            print("Server model:".ljust(20), self.server_details["Server model"])
+            print("Asset tag:".ljust(20), self.server_details["Asset tag"])
+            if self.server_details["Warranty epoch"]:
+                print(
+                    "Warranty:".ljust(20),
+                    datetime.fromtimestamp(int(self.server_details["Warranty epoch"])),
+                )
             else:
                 print("Warranty:".ljust(20), "no information available")
             print("{code}")
@@ -508,16 +563,30 @@ class server_object():
 
             # Print the email template for parcel delivery
             open_section("Template: Email to request a delivery")
-            print(bcolors.FAIL +
-                  "NOTE: Review this template before using it!\n" +
-                  bcolors.ENDC + "\n\n")
+            print(
+                bcolors.FAIL
+                + "NOTE: Review this template before using it!\n"
+                + bcolors.ENDC
+                + "\n\n"
+            )
             try:
-                print(bcolors.BOLD + "Subject:" + bcolors.ENDC +
-                      " %s HDD to Cluster %s %s\n" %
-                      (self.list_all[0][7] + " " + self.list_all[0][3][0],
-                       letter, datacenter_info[letter][0]))
+                print(
+                    bcolors.BOLD
+                    + "Subject:"
+                    + bcolors.ENDC
+                    + " %s HDD to Cluster %s %s\n"
+                    % (
+                        self.list_all[0][7] + " " + self.list_all[0][3][0],
+                        letter,
+                        datacenter_info[letter][0],
+                    )
+                )
 
-                print(bcolors.BOLD + "Body:" + bcolors.ENDC + """
+                print(
+                    bcolors.BOLD
+                    + "Body:"
+                    + bcolors.ENDC
+                    + """
 Please ship <N>x %s disks as per subject please.
 
 === <N>x %s disks to Cluster %s %s ===
@@ -528,25 +597,35 @@ Please ship <N>x %s disks as per subject please.
 
 = Contact details
 %s
-                                """ %
-                      (self.list_all[0][7] + " " + self.list_all[0][3][0],
-                       self.list_all[0][7] + " " + self.list_all[0][3][0],
-                       letter, datacenter_info[letter][0],
-                       self.server_details['Location'],
-                       datacenter_info[letter][3],
-                       datacenter_info[letter][4],))
+                                """
+                    % (
+                        self.list_all[0][7] + " " + self.list_all[0][3][0],
+                        self.list_all[0][7] + " " + self.list_all[0][3][0],
+                        letter,
+                        datacenter_info[letter][0],
+                        self.server_details["Location"],
+                        datacenter_info[letter][3],
+                        datacenter_info[letter][4],
+                    )
+                )
             except IndexError:
-                print(bcolors.FAIL + "The server may be offline!" +
-                      bcolors.ENDC +
-                      " Unable to print this section.\n")
+                print(
+                    bcolors.FAIL
+                    + "The server may be offline!"
+                    + bcolors.ENDC
+                    + " Unable to print this section.\n"
+                )
             print(template_closing)
             close_section()
 
             # Print the smart hands template
             open_section("Template: Smart hands ticket")
-            print(bcolors.FAIL +
-                  "NOTE: Review this template before using it!\n" +
-                  bcolors.ENDC + "\n\n")
+            print(
+                bcolors.FAIL
+                + "NOTE: Review this template before using it!\n"
+                + bcolors.ENDC
+                + "\n\n"
+            )
             if self.list_needreplacement and stop_with_error != "SSH":
                 # if the list is not empty AND we can connect to the server
                 # (= the disk info is populated) print the SH template
@@ -581,39 +660,45 @@ Please ship <N>x %s disks as per subject please.
         #
         if mock:
             # pick the mock information from the first disk
-            replace_vars = (self.list_all[0][7] + " " +
-                            self.list_all[0][3][0],
-                            self.list_all[0][0][0][-1:],
-                            self.list_all[0][9][0],
-                            )
-            print(bcolors.FAIL +
-                  "This is the mock template - DO NOT USE THIS TEMPLATE FOR A REAL REPLACEMENT\n" +
-                  bcolors.ENDC)
+            replace_vars = (
+                self.list_all[0][7] + " " + self.list_all[0][3][0],
+                self.list_all[0][0][0][-1:],
+                self.list_all[0][9][0],
+            )
+            print(
+                bcolors.FAIL
+                + "This is the mock template - DO NOT USE THIS TEMPLATE FOR A REAL REPLACEMENT\n"
+                + bcolors.ENDC
+            )
         else:
             print("- Printing the template for disk: %s -\n" % disk[0][0])
-            replace_vars = (disk[7] + " " +
-                            disk[3][0],
-                            disk[0][0][-1:],
-                            disk[9][0],
-                            )
-        print("Hello %s,\n" % self.server_details['Location'])
-        print("This is a remote hands request for replacing one HDD. Thanks for following these steps:\n")
+            replace_vars = (disk[7] + " " + disk[3][0], disk[0][0][-1:], disk[9][0])
+        print("Hello %s,\n" % self.server_details["Location"])
+        print(
+            "This is a remote hands request for replacing one HDD. Thanks for following these steps:\n"
+        )
         print("1. take one disk of size %s from <...>" % replace_vars[0])
-        print("2. locate the server > %s < and replace disk in bay %s (Serial number: %s)" %
-              (server, replace_vars[1], replace_vars[2]))
-        print("""
+        print(
+            "2. locate the server > %s < and replace disk in bay %s (Serial number: %s)"
+            % (server, replace_vars[1], replace_vars[2])
+        )
+        print(
+            """
     Server:    %s
     Rack:      %s
     RU:        %s
     Asset Tag: %s
     Model:     %s
 
-3. label the broken disk as "FAILED" """ %
-              (server,
-               self.server_details['Rack'],
-               self.server_details['RU'],
-               self.server_details['Asset tag'],
-               self.server_details['Server model']))
+3. label the broken disk as "FAILED" """
+            % (
+                server,
+                self.server_details["Rack"],
+                self.server_details["RU"],
+                self.server_details["Asset tag"],
+                self.server_details["Server model"],
+            )
+        )
 
 
 def arguments():
@@ -625,27 +710,42 @@ def arguments():
     # version = "0.2 - April 2018"
     # version = "0.3 - May 2018"
     version = "0.3.1 - May 2018"  # Fixed duplicate entries when using -p
-    prg_description = 'Pull the information about failed disk(s) and print templates to raise a JIRA ticket, Smart Hands requests, etc.'
+    prg_description = "Pull the information about failed disk(s) and print templates to raise a JIRA ticket, Smart Hands requests, etc."
     # #
-    parser = argparse.ArgumentParser(description=prg_description,
-                                     prog='failed_disk script')
-    parser.add_argument('server', help='The server hostname, ex: prx11a')
-    parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s version ' + version)
-    parser.add_argument('-c', '--compact', help='print a compact report',
-                        action='store_true')
-    parser.add_argument('-s', '--serial', help='print the status, model, serial number for all the disks',
-                        action='store_true')
-    parser.add_argument('-p', '--progress', help='print the progress of disks rebuilding; press \'q\' to exit',
-                        action='store_true')
-    parser.add_argument('-t', '--template', help='print the templates even if there is no disk failed or in predictive failure',
-                        action='store_true')
+    parser = argparse.ArgumentParser(
+        description=prg_description, prog="failed_disk script"
+    )
+    parser.add_argument("server", help="The server hostname, ex: prx11a")
+    parser.add_argument(
+        "-v", "--version", action="version", version="%(prog)s version " + version
+    )
+    parser.add_argument(
+        "-c", "--compact", help="print a compact report", action="store_true"
+    )
+    parser.add_argument(
+        "-s",
+        "--serial",
+        help="print the status, model, serial number for all the disks",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-p",
+        "--progress",
+        help="print the progress of disks rebuilding; press 'q' to exit",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-t",
+        "--template",
+        help="print the templates even if there is no disk failed or in predictive failure",
+        action="store_true",
+    )
     args = parser.parse_args()
     """
     perform sanity check on arguments
     """
     # check that server is a string of 3 characters followed by 2 numbers
-    if not re.match('[a-z][a-z][a-z][0-9][0-9][a-z]+', args.server):
+    if not re.match("[a-z][a-z][a-z][0-9][0-9][a-z]+", args.server):
         sys.exit("ERROR: Server not valid\n")
     # check for incompatible options: only 1 option can be selected
     # between -c/-s/-p/-t
@@ -661,13 +761,13 @@ def query_xymon(host, test):
     """
     # initialise variable data, we can do this in two different ways
     # data = '' # data is a string
-    data = []   # data is a list
+    data = []  # data is a list
     xserver = "abcd"
     parameter = "xymondlog " + host + "." + test
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # sock.settimeout(10)
     sock.connect((xserver, 11984))
-    sock.send(parameter.encode('ascii', 'xmlcharrefreplace'))
+    sock.send(parameter.encode("ascii", "xmlcharrefreplace"))
     sock.shutdown(socket.SHUT_WR)
     """
     Loop to fetch data from Xymon
@@ -678,13 +778,13 @@ def query_xymon(host, test):
         if not chunk:
             break
         # data += str(chunk)         # data is a string
-        data += [chunk]              # data is a list
+        data += [chunk]  # data is a list
     """
     End of the loop
     """
     sock.close()
     # return data                # data is a string
-    return str(data)             # data is a list
+    return str(data)  # data is a list
 
 
 def pull_omreport(server):
@@ -696,10 +796,12 @@ def pull_omreport(server):
     global stop_with_error
     #
     command = "sudo omreport storage pdisk controller=0"
-    ssh = subprocess.Popen(["ssh", "%s" % server, command],
-                           shell=False,
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
+    ssh = subprocess.Popen(
+        ["ssh", "%s" % server, command],
+        shell=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     result = ssh.stdout.readlines()
     if result == []:  # print the error and exit gracefully
         error = ssh.stderr.readlines()
@@ -738,23 +840,23 @@ def strip(string):
     """
     # strips [b' and ']
     string = string.replace("[b'", "").replace("']", "")  # use "" to contain '
-    string = string.replace('[b"', '').replace('"]', '')  # use "" to contain '
+    string = string.replace('[b"', "").replace('"]', "")  # use "" to contain '
     # replace \\n
-    string = string.replace('\\n', '\n')
+    string = string.replace("\\n", "\n")
     # replaces \\t
-    string = string.replace('\\t', '\t')
+    string = string.replace("\\t", "\t")
     # replaces \\r
-    string = string.replace('\\r', '\r')
+    string = string.replace("\\r", "\r")
     # replaces &color
-    colours = ['green', 'red', 'yellow', 'blu', 'clear']
+    colours = ["green", "red", "yellow", "blu", "clear"]
     for i in colours:
-        string = string.replace('&' + i, i)
+        string = string.replace("&" + i, i)
     # strips html tags
-    string = string.replace('<B>', '').replace('</B>', '')
-    string = string.replace('<H3>', '').replace('</H3>', '')
-    string = string.replace('<PRE>', '').replace('</PRE>', '')
-    string = string.replace('<FONT color=grey>', '')
-    string = string.replace('<FONT color=yellow>', '').replace('</FONT>', '')
+    string = string.replace("<B>", "").replace("</B>", "")
+    string = string.replace("<H3>", "").replace("</H3>", "")
+    string = string.replace("<PRE>", "").replace("</PRE>", "")
+    string = string.replace("<FONT color=grey>", "")
+    string = string.replace("<FONT color=yellow>", "").replace("</FONT>", "")
     # strips ', b'
     string = string.replace("', b'", "")
     return string
@@ -770,10 +872,18 @@ def get_cluster_info(server):
     # check if it's a valid cluster
     if cluster_letter not in datacenter_info:
         sys.exit("ERROR: I don't have cluster %s in my list.\n" % cluster_letter)
-    print("Cluster " + bcolors.BOLD + cluster_letter +
-          " " + datacenter_info[cluster_letter][0] +
-          " " + datacenter_info[cluster_letter][1] +
-          " " + bcolors.ENDC + "\n")
+    print(
+        "Cluster "
+        + bcolors.BOLD
+        + cluster_letter
+        + " "
+        + datacenter_info[cluster_letter][0]
+        + " "
+        + datacenter_info[cluster_letter][1]
+        + " "
+        + bcolors.ENDC
+        + "\n"
+    )
     return cluster_letter
 
 
@@ -792,8 +902,8 @@ def hr_disk_size(alist):
         "3,725.50 GB": "4 TB",
     }
     # we need to do a bit of error check as alist could be empty
-    astring = ""            # astring is empty
-    if alist:               # the list is not empty
+    astring = ""  # astring is empty
+    if alist:  # the list is not empty
         astring = alist[0]  # extract the string from the list
     # check if astring is contained in the dict
     if astring in disksize_info:
@@ -804,13 +914,11 @@ def hr_disk_size(alist):
 
 def open_section(string):
     string = " " + string + " "
-    print(bcolors.BOLD + string.center(80, "=") +
-          bcolors.ENDC)
+    print(bcolors.BOLD + string.center(80, "=") + bcolors.ENDC)
 
 
 def close_section():
-    print(bcolors.BOLD + "-" * 80 +
-          bcolors.ENDC + "\n\n")
+    print(bcolors.BOLD + "-" * 80 + bcolors.ENDC + "\n\n")
 
 
 if __name__ == "__main__":
@@ -821,8 +929,9 @@ if __name__ == "__main__":
     server, template_yes, serial_yes, progress_yes, compact_yes = arguments()
     # get the cluster information for server and
     # print a header with some initial information
-    print("Gathering disks information for " + bcolors.BOLD + server +
-          bcolors.ENDC + "\n")
+    print(
+        "Gathering disks information for " + bcolors.BOLD + server + bcolors.ENDC + "\n"
+    )
     letter = get_cluster_info(server)
     # query Xymon for $server.hw-disk and store the raw result in result_hwdisk
     result_hwdisk = query_xymon(server, "hw-disk")
